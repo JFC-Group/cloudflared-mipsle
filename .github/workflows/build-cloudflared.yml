@@ -9,7 +9,7 @@ permissions:
 jobs:  
   build-cloudflared:
     runs-on: ubuntu-latest
-    name: Cross-compile cloudflared for mipsel-uclibc
+    name: Cross-compile cloudflared for mipsel
 
     steps:
     - name: Checkout cloudflared repo
@@ -19,18 +19,15 @@ jobs:
         path: cloudflared
         fetch-depth: 0
 
-    - name: Download and extract MIPSel toolchain
-      run: |
-        wget https://github.com/JFC-Group/JF-Buildroot/releases/download/2015.08.1/mipsel-buildroot-linux-uclibc-toolchain-2015.08.1.tar
-        tar -xf mipsel-buildroot-linux-uclibc-toolchain-2015.08.1.tar
-
+    # Pure Go and statically linked, so no C toolchain is needed: the binary
+    # never links against the router's uClibc.
     - name: Set environment variables
       run: |
-        echo "$(pwd)/mipsel-buildroot-linux-uclibc-toolchain-2015.08.1/usr/bin" >> $GITHUB_PATH
-        echo "LD_LIBRARY_PATH=$(pwd)/mipsel-buildroot-linux-uclibc-toolchain-2015.08.1/usr/lib" >> $GITHUB_ENV
-        echo "CC=$(pwd)/mipsel-buildroot-linux-uclibc-toolchain-2015.08.1/usr/bin/mipsel-buildroot-linux-uclibc-gcc" >> $GITHUB_ENV
-        echo "GOARCH=mipsle" >> $GITHUB_ENV
-        echo "GOOS=linux" >> $GITHUB_ENV
+        {
+          echo "GOARCH=mipsle"
+          echo "GOOS=linux"
+          echo "CGO_ENABLED=0"
+        } >> "$GITHUB_ENV"
 
     - name: Build cloudflared
       working-directory: cloudflared
