@@ -1,4 +1,4 @@
-name: Build cloudflared for JF MIPSel
+name: Build cloudflared for mipsle
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ permissions:
 jobs:  
   build-cloudflared:
     runs-on: ubuntu-latest
-    name: Cross-compile cloudflared for mipsel
+    name: Cross-compile cloudflared for mipsle
 
     steps:
     - name: Checkout cloudflared repo
@@ -19,8 +19,8 @@ jobs:
         path: cloudflared
         fetch-depth: 0
 
-    # Pure Go and statically linked, so no C toolchain is needed: the binary
-    # never links against the router's uClibc.
+    # Pure Go and statically linked, so no C toolchain is needed and the
+    # binary doesn't depend on the system's libc.
     - name: Set environment variables
       run: |
         {
